@@ -1,135 +1,131 @@
+/*
+Fernando Dias Motta - 180016
+Leonardo Picanço Bottaro - 180043
+Lucas Fernando Basilio da Costa - 173264
+Marcelo Zaguette Junior - 180998
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Task{
+typedef struct Task {
     char *name;
     int memoryAllocated;
     float tempExec;
-};
+} Task;
 
-struct Queue {
+typedef struct Queue {
+    int capacity;
+    Task *data;
+    int head;
+    int tail;
+    int nItems;
+} Queue;
 
-	int capacity;
-	float *data;
-	int head;
-	int tail;
-	int nItems;
-
-};
-
-void createQueue( struct Queue *f, int c ) {
-
-	f->capacity = c;
-	f->data = (float*) malloc (f->capacity * sizeof(float));
-	f->head = 0;
-	f->tail = -1;
-	f->nItems = 0;
+void createQueue(struct Queue *f, int c) {
+    f->capacity = c;
+    f->data = (Task *)malloc(f->capacity * sizeof(Task));
+    f->head = 0;
+    f->tail = -1;
+    f->nItems = 0;
 }
 
-void insert(struct Queue *f, int v) {
+void insert(struct Queue *f, Task task) {
+    if (f->tail == f->capacity - 1)
+        f->tail = -1;
 
-	if(f->tail == f->capacity-1)
-		f->tail = -1;
-
-	f->tail++;
-	f->data[f->tail] = v; // incrementa ultimo e insere
-	f->nItems++; // mais um item inserido
-
+    f->tail++;
+    f->data[f->tail] = task;
+    f->nItems++;
 }
 
-int delete( struct Queue *f ) { // pega o item do comeÃ§o da fila
+Task delete(struct Queue *f) {
+    Task temp = f->data[f->head++];
 
-	int temp = f->data[f->head++]; // pega o valor e incrementa o primeiro
+    if (f->head == f->capacity)
+        f->head = 0;
 
-	if(f->head == f->capacity)
-		f->head = 0;
-
-	f->nItems--;  // um item retirado
-	return temp;
-
+    f->nItems--;
+    return temp;
 }
 
-int queueIsEmpty( struct Queue *f ) { // retorna verdadeiro se a fila estÃ¡ vazia
-
-	return (f->nItems==0);
+int queueIsEmpty(struct Queue *f) {
+    return (f->nItems == 0);
 }
 
-int queueIsFull( struct Queue *f ) { // retorna verdadeiro se a fila estÃ¡ cheia
-
-	return (f->nItems == f->capacity);
+int queueIsFull(struct Queue *f) {
+    return (f->nItems == f->capacity);
 }
 
-void showQueue(struct Queue *f){
+void showQueue(struct Queue *f) {
+    int cont, i;
 
-	int cont, i;
+    for (cont = 0, i = f->head; cont < f->nItems; cont++) {
+        printf("Task: %s, Memoria Alocada: %d, Tempo de execucao: %.2f\n",
+               f->data[i].name, f->data[i].memoryAllocated, f->data[i].tempExec);
+        i = (i + 1) % f->capacity;
+    }
 
-	for ( cont=0, i= f->head; cont < f->nItems; cont++){
-		printf("%.2f\t",f->data[i++]);
-
-		if (i == f->capacity)
-			i=0;
-	}
-
-	printf("\n\n");
-
+    printf("\n");
 }
 
-void main () {
+int main() {
+    int option, capacity;
+    struct Queue queue;
 
-	int option, capacity;
-	float valor;
-	struct Queue queue;
+    // cria a fila
+    printf("Capacidade da fila? ");
+    scanf("%d", &capacity);
+    createQueue(&queue, capacity);
 
-	// cria a fila
-	printf("\nCapacidade da fila? ");
-	scanf("%d",&capacity);
-	createQueue(&queue, capacity);
+    // apresenta menu
+    while (1) {
+        printf("\n1 - Inserir elemento\n2 - Remover elemento\n3 - Mostrar Fila\n0 - Sair\n\nOpcao? ");
+        scanf("%d", &option);
 
-	// apresenta menu
-	while( 1 ){
+        switch (option) {
+            case 0:
+                exit(0);
 
-		printf("\n1 - Inserir elemento\n2 - Remover elemento\n3 - Mostrar Fila\n0 - Sair\n\nOpcao? ");
-		scanf("%d", &option);
+            case 1: // insere elemento
+                if (queueIsFull(&queue)) {
+                    printf("\nFila Cheia!!!\n\n");
+                } else {
+                    Task task;
+                    task.name = (char *)malloc(50 * sizeof(char)); // Allocate memory for task name
+                    printf("\nNome da tarefa: ");
+                    scanf("%s", task.name);
+                    printf("Memoria alocada: ");
+                    scanf("%d", &task.memoryAllocated);
+                    printf("Tempo de execucao: ");
+                    scanf("%f", &task.tempExec);
+                    insert(&queue, task);
+                }
+                break;
 
-		switch(option){
+            case 2: // remove elemento
+                if (queueIsEmpty(&queue)) {
+                    printf("\nFila vazia!!!\n\n");
+                } else {
+                    Task removedTask = delete(&queue);
+                    printf("\nTarefa removida com sucesso:\n");
+                    printf("Task: %s, Memoria Alocada: %d, Tempo de Execucao: %.2f\n",
+                           removedTask.name, removedTask.memoryAllocated, removedTask.tempExec);
+                    free(removedTask.name); // Free the memory allocated for the task name
+                }
+                break;
 
-			case 0: exit(0);
+            case 3: // mostrar fila
+                if (queueIsEmpty(&queue)) {
+                    printf("\nFila vazia!!!\n\n");
+                } else {
+                    printf("\nConteudo da fila:\n");
+                    showQueue(&queue);
+                }
+                break;
 
-			case 1: // insere elemento
-				if (queueIsFull(&queue)){
-					printf("\nFila Cheia!!!\n\n");
-				}
-				else {
-					printf("\nValor do elemento a ser inserido? ");
-					scanf("%f", &valor);
-					insert(&queue,valor);
-				}
-
-				break;
-
-			case 2: // remove elemento
-				if (queueIsEmpty(&queue)){
-					printf("\nFila vazia!!!\n\n");
-				}
-				else {
-					valor = delete(&queue);
-					printf("\n%1f removido com sucesso\n\n", valor) ;
-				}
-				break;
-
-				case 3: // mostrar fila
-					if (queueIsEmpty(&queue)){
-						printf("\nFila vazia!!!\n\n");
-					}
-					else {
-						printf("\nConteudo da fila => ");
-						showQueue(&queue);
-					}
-					break;
-
-				default:
-					printf("\nOpcao Invalida\n\n");
-
-		}
-	}
+            default:
+                printf("\nOpcao Invalida\n\n");
+        }
+    }
 }
