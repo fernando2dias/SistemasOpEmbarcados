@@ -92,7 +92,7 @@ int main() {
                     printf("\nFila Cheia!!!\n\n");
                 } else {
                     Task task;
-                    task.name = (char *)malloc(50 * sizeof(char)); // Allocate memory for task name
+                    task.name = (char *)malloc(50 * sizeof(char)); // Alocando memoria para name
                     printf("\nNome da tarefa: ");
                     scanf("%s", task.name);
                     printf("Memoria alocada: ");
@@ -111,7 +111,7 @@ int main() {
                     printf("\nTarefa removida com sucesso:\n");
                     printf("Task: %s, Memoria Alocada: %d, Tempo de Execucao: %.2f\n",
                            removedTask.name, removedTask.memoryAllocated, removedTask.tempExec);
-                    free(removedTask.name); // Free the memory allocated for the task name
+                    free(removedTask.name); // Liberando memoria alocada nome task
                 }
                 break;
 
